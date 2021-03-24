@@ -16,16 +16,16 @@ class Chat extends Model
      */
     public function users()
     {
-        return $this->belongsToMany(Role::class);
+        return $this->belongsToMany(User::class);
     }
 
     /**
-     * The messages that belong to the Chat
+     * Get all of the messages for the Chat
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function messages()
     {
-        return $this->belongsToMany(Message::class);
+        return $this->hasMany(Message::class);
     }
 }
