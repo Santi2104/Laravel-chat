@@ -32,7 +32,59 @@ window.onload = function() {
  
     });
  
-  })
+  }).then(() => {
+ 
+    Echo.join(`chat.${chatId}`)
+      .listen('MessageSent', (e) => {
+ 
+        appendMessage(
+          e.message.user.name,
+          PERSON_IMG,
+          'left',
+          e.message.content,
+          formatDate(new Date(e.message.created_at))
+        );
+ 
+      })      .here(users => {
+ 
+        let result = users.filter(user => user.id != authUser.id);
+ 
+          if(result.length > 0)
+            chatStatus.className = 'chatStatus online';
+ 
+      })
+      .joining(user => {
+ 
+        if(user.id != authUser.id)
+          chatStatus.className = 'chatStatus online';
+ 
+      })
+      .leaving(user => {
+ 
+        if(user.id != authUser.id)
+          chatStatus.className = 'chatStatus offline';
+ 
+      })
+      .listenForWhisper('typing', e => {
+ 
+        if(e > 0)
+          typing.style.display = '';
+ 
+        if(typingTimer){
+          clearTimeout(typingTimer);
+        }
+ 
+        typingTimer = setTimeout( () => {
+ 
+          typing.style.display = 'none';
+ 
+          typingTimer = false;
+ 
+        }, 2000);
+ 
+      });
+ 
+  });
 }
 
 msgerForm.addEventListener("submit", event => {
@@ -110,11 +162,15 @@ function appendMessage(name, img, side, text, date) {
   scrollToBottom();
 }
 
-Echo.join(`chat.${chatId}`).listen('MessageSent', (e) => {
-    
-  console.log(e);
+function sendTypingEvent()
+{
 
-});
+  typingTimer = true;
+
+  Echo.join(`chat.${chatId}`)
+    .whisper('typing', msgerInput.value.length);
+
+}
 
 
 // Utils
